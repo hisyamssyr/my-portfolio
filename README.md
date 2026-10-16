@@ -68,55 +68,47 @@ repo: "https://github.com/hisyamssyr/…" # optional — shows a TODO chip when 
 - Type: Fraunces (display), Instrument Sans (body), JetBrains Mono (metadata).
 - `/styleguide` is an internal, `noindex` reference page for the design system.
 
-## Deploy — Cloudflare Pages
+## Deploy — Cloudflare (Workers static assets)
 
-A custom domain is **not required**: every Pages project gets a free
-`https://<project-name>.pages.dev` URL with HTTPS.
+A custom domain is **not required**: the Worker serves a free
+`https://my-portfolio.<your-subdomain>.workers.dev` URL with HTTPS. Build and
+deploy behavior comes from `wrangler.jsonc` (static assets from `./dist`,
+404 handling via `404-page`) — the Workers flow has no "framework preset",
+it reads this file.
 
 ### Option A — Git integration (auto-deploy on every push)
 
-1. Push this repo to GitHub:
-
-   ```sh
-   git init
-   git add -A
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/hisyam-portfolio.git
-   git push -u origin main
-   ```
-
-2. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
-   **Connect to Git**, then pick the repository.
-3. Build settings:
-   - Framework preset: **Astro**
+1. Push this repo to GitHub (done in the step above).
+2. Cloudflare dashboard → **Workers & Pages** → **Create** → **Import a
+   repository** → pick `my-portfolio`.
+3. Keep the defaults:
    - Build command: `npm run build`
-   - Build output directory: `dist`
-4. Project → **Settings** → **Environment variables**: add
-   `NODE_VERSION` = `22.22.0` (Astro 7 requires Node 22.22+).
-5. **Save and Deploy** (~1–2 minutes). The site is live at
-   `https://hisyam-portfolio.pages.dev`.
+   - Deploy command: `npx wrangler deploy`
+4. Add a build variable `NODE_VERSION` = `22.22.0` (Settings → Variables and
+   Secrets) — or rely on the committed `.nvmrc`. Astro 7 requires Node 22.22+.
+5. **Deploy** (~1–2 minutes). The site is live at
+   `https://my-portfolio.<your-subdomain>.workers.dev`.
 6. Point the site config at the real URL: update `site` in `astro.config.mjs`
-   and the `Sitemap:` line in `public/robots.txt`, then push again — Cloudflare
-   rebuilds automatically.
+   and the `Sitemap:` line in `public/robots.txt`, then push again —
+   Cloudflare rebuilds automatically.
 
-### Option B — Direct upload with Wrangler (no Git needed)
+### Option B — Deploy from your machine
 
 ```sh
-npx wrangler login          # once, opens the browser
+npx wrangler login     # once, opens the browser
 npm run build
-npx wrangler pages deploy   # reads name + output dir from wrangler.jsonc
+npx wrangler deploy    # reads name + assets directory from wrangler.jsonc
 ```
 
 ### Custom domain (optional, later)
 
-Pages project → **Custom domains** → **Set up a domain**. The domain must be
-managed by Cloudflare (transfer it, or switch its nameservers to Cloudflare),
-then it is attached with one click.
+Worker → **Settings** → **Domains & Routes** → **Add custom domain**. The
+domain must use Cloudflare DNS (transfer it, or switch its nameservers),
+then it is attached in one click.
 
 ## TODO before going live
 
-- [ ] Set the real URL (pages.dev or custom domain) in `astro.config.mjs` (`site`) and `public/robots.txt`
+- [ ] Set the real URL (workers.dev or custom domain) in `astro.config.mjs` (`site`) and `public/robots.txt`
 - [ ] Add `public/hisyam-syafa-raditya-cv.pdf` (the "Download CV" button appears automatically)
 - [ ] Add the BPMN project repo link in the `.mdx` frontmatter
 - [ ] Make the Kaggle notebook public (`kaggle.com/code/hisyamsyafaraditya/adm-v2` currently 404 for visitors)
