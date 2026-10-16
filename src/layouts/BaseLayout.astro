@@ -1,0 +1,260 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: "website" | "article";
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  ogImage = "/og/og-default.png",
+  ogType = "website",
+  jsonLd,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <script is:inline>
+      (() => {
+        document.documentElement.classList.add("js");
+        try {
+          const stored = localStorage.getItem("theme");
+          document.documentElement.dataset.theme = stored === "light" ? "light" : "dark";
+        } catch {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Hisyam Syafa Raditya" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <meta name="theme-color" content="#121110" data-theme-color />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link
+      rel="preload"
+      href="/fonts/fraunces-latin-standard-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/instrument-sans-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <ClientRouter />
+
+    {
+      jsonLd && (
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+      )
+    }
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:border focus:border-rule-2 focus:bg-paper focus:px-4 focus:py-2 focus:font-mono focus:text-xs"
+    >
+      Skip to content
+    </a>
+
+    <Header />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      const THEME_COLORS = { dark: "#121110", light: "#f4f1ea" } as const;
+
+      // The user's last choice wins; dark is the default. OS preference is
+      // intentionally ignored.
+      function currentTheme(): keyof typeof THEME_COLORS {
+        try {
+          return localStorage.getItem("theme") === "light" ? "light" : "dark";
+        } catch {
+          return "dark";
+        }
+      }
+
+      // ClientRouter wipes <html> attributes on navigation (swapRootAttributes),
+      // so theme and the `js` flag are repainted on the incoming document
+      // before it is swapped in — no flash, no reset.
+      function paintTheme(target: Document) {
+        const theme = currentTheme();
+        target.documentElement.dataset.theme = theme;
+        target.documentElement.classList.add("js");
+        target
+          .querySelector<HTMLMetaElement>("[data-theme-color]")
+          ?.setAttribute("content", THEME_COLORS[theme]);
+      }
+
+      document.addEventListener("astro:before-swap", (event) => {
+        paintTheme(event.newDocument);
+
+        // Case-study headings are marked for scroll-reveal on the incoming
+        // document. This cannot rely on the project page script: the router
+        // deduplicates identical scripts on project → project navigations,
+        // which previously left the headings permanently hidden.
+        event.newDocument
+          .querySelectorAll<HTMLElement>(".case-body > h2:not([data-reveal])")
+          .forEach((heading) => heading.setAttribute("data-reveal", ""));
+      });
+
+      function setupReveal() {
+        const elements = document.querySelectorAll("[data-reveal]:not(.is-in)");
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (reduced || !("IntersectionObserver" in window)) {
+          elements.forEach((element) => element.classList.add("is-in"));
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-in");
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+        );
+
+        elements.forEach((element) => observer.observe(element));
+      }
+
+      function setupScrollSpy() {
+        const links = Array.from(document.querySelectorAll<HTMLElement>("[data-spy-link]"));
+        const pairs: { link: HTMLElement; section: HTMLElement }[] = [];
+        links.forEach((link) => {
+          const id = link.dataset.spyLink;
+          const section = id ? document.getElementById(id) : null;
+          if (section) pairs.push({ link, section });
+        });
+        if (pairs.length === 0) return;
+
+        let current: HTMLElement | null = null;
+        const activate = (link: HTMLElement | null) => {
+          if (link === current) return;
+          current?.removeAttribute("data-active");
+          link?.setAttribute("data-active", "true");
+          current = link;
+        };
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const match = pairs.find((pair) => pair.section === entry.target);
+              if (match) activate(match.link);
+            }
+          },
+          // Top strip of the viewport: a section/heading becomes active as soon
+          // as it crosses into the top 30%, so anchor jumps highlight correctly
+          // and the last item stays active while reading its content.
+          { rootMargin: "0px 0px -70% 0px", threshold: 0 }
+        );
+
+        pairs.forEach((pair) => observer.observe(pair.section));
+      }
+
+      function setupKeyboard() {
+        let awaitingG = false;
+        let timer = 0;
+
+        document.addEventListener("keydown", (event) => {
+          if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+          const target = event.target as HTMLElement | null;
+          if (
+            target &&
+            (target.tagName === "INPUT" ||
+              target.tagName === "TEXTAREA" ||
+              target.tagName === "SELECT" ||
+              target.isContentEditable)
+          ) {
+            return;
+          }
+
+          if (event.key === "t" || event.key === "T") {
+            document.querySelector<HTMLButtonElement>("[data-theme-toggle]")?.click();
+          } else if (event.key === "g" || event.key === "G") {
+            awaitingG = true;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => (awaitingG = false), 1200);
+          } else if (awaitingG && (event.key === "h" || event.key === "H")) {
+            awaitingG = false;
+            if (window.location.pathname !== "/") {
+              window.location.href = "/";
+            } else {
+              const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+            }
+          }
+        });
+      }
+
+      function setupConsoleNote() {
+        if ((window as unknown as { __hsrNote?: boolean }).__hsrNote) return;
+        (window as unknown as { __hsrNote?: boolean }).__hsrNote = true;
+        console.log(
+          "%cHSR%c\nBuilt with Astro, Fraunces & JetBrains Mono.\nSource is unobfuscated on purpose — read it: github.com/hisyamssyr",
+          "font: 600 20px serif; color: #e8431f;",
+          "font: 12px monospace; color: #888;"
+        );
+      }
+
+      function boot() {
+        paintTheme(document);
+        setupReveal();
+        setupScrollSpy();
+        setupConsoleNote();
+      }
+
+      setupKeyboard();
+      boot();
+      document.addEventListener("astro:page-load", boot);
+    </script>
+  </body>
+</html>

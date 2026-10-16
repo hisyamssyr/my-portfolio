@@ -1,0 +1,43 @@
+---
+import Icon from "./Icon.astro";
+import type { IconName } from "../lib/icons";
+
+interface Props {
+  href: string;
+  variant?: "solid" | "outline";
+  icon?: IconName;
+  external?: boolean;
+  class?: string;
+}
+
+const {
+  href,
+  variant = "outline",
+  icon,
+  external = false,
+  class: className = "",
+} = Astro.props;
+---
+
+<a
+  href={href}
+  rel={external ? "noopener noreferrer" : undefined}
+  class:list={[
+    "group inline-flex min-h-11 items-center gap-2.5 px-5 font-mono text-[12px] tracking-[0.12em] uppercase transition-colors",
+    variant === "solid"
+      ? "bg-accent text-accent-ink hover:bg-ink hover:text-paper"
+      : "border border-rule-2 text-ink hover:border-ink hover:bg-ink hover:text-paper",
+    className,
+  ]}
+>
+  <slot />
+  {
+    icon && (
+      <Icon
+        name={icon}
+        size={15}
+        class="shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none"
+      />
+    )
+  }
+</a>

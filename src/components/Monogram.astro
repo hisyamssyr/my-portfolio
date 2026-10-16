@@ -1,0 +1,15 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<a
+  href="/"
+  class:list={["inline-flex items-baseline gap-0.5 font-display text-xl leading-none tracking-tight", className]}
+  aria-label="HSR — Hisyam Syafa Raditya, back to home"
+>
+  <span>HSR</span><span class="text-accent" aria-hidden="true">.</span>
+</a>

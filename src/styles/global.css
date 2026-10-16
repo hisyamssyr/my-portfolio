@@ -1,0 +1,384 @@
+@import "tailwindcss";
+@import "./fonts.css";
+@import "./tokens.css";
+
+/* Theme switching is done with a `data-theme` attribute on <html>, set before
+   first paint by an inline script in BaseLayout.astro. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  /* Typography */
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Colors (mapped 1:1 to tokens.css) */
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-rule: var(--rule);
+  --color-rule-2: var(--rule-2);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-ink: var(--accent-ink);
+
+  /* Fluid type scale */
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1.45;
+  --text-caption--letter-spacing: 0.14em;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.55;
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-body--line-height: 1.65;
+  --text-lead: clamp(1.125rem, 1rem + 0.7vw, 1.5rem);
+  --text-lead--line-height: 1.45;
+  --text-h3: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
+  --text-h3--line-height: 1.25;
+  --text-h2: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h1: clamp(2.5rem, 1.5rem + 4.5vw, 5rem);
+  --text-h1--line-height: 1.02;
+  --text-display: clamp(3.25rem, 0.5rem + 12vw, 9.5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.015em;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  html {
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    overflow-x: clip;
+    min-height: 100svh;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 520;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  /* Page container: 360px → 1280px content, honoring notches. */
+  .wrap {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 80rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  @media (min-width: 640px) {
+    .wrap {
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .wrap {
+      padding-left: max(2rem, env(safe-area-inset-left));
+      padding-right: max(2rem, env(safe-area-inset-right));
+    }
+  }
+
+  /* Small mono metadata label: "01 / Selected Work" */
+  .mono-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    letter-spacing: var(--text-caption--letter-spacing);
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-weight: 450;
+  }
+
+  .link-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: var(--rule-2);
+    transition: text-decoration-color 0.2s ease, color 0.2s ease;
+  }
+
+  .link-underline:hover {
+    color: var(--accent-2);
+    text-decoration-color: var(--accent);
+  }
+
+  /* TODO marker for content the owner still needs to provide. */
+  .todo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    border: 1px dashed var(--accent);
+    color: var(--accent-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.18em 0.55em;
+    white-space: nowrap;
+  }
+
+  /* Shared dash-marker list (timelines, skills, contacts). */
+  .dash-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .dash-list li {
+    position: relative;
+    padding-left: 1.6rem;
+  }
+
+  .dash-list li + li {
+    margin-top: 0.5rem;
+  }
+
+  .dash-list li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    top: 0.05em;
+    color: var(--accent-2);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  /* Long-form case-study typography (rendered Markdown/MDX). */
+  .case-body {
+    counter-reset: case-sec;
+  }
+
+  .case-body > * + * {
+    margin-top: 1.35rem;
+  }
+
+  .case-body > h2 {
+    counter-increment: case-sec;
+    font-size: var(--text-h3);
+    line-height: 1.2;
+    margin-top: 4.5rem;
+  }
+
+  .case-body > h2:first-child {
+    margin-top: 0;
+  }
+
+  .case-body > h2::before {
+    content: counter(case-sec, decimal-leading-zero);
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    letter-spacing: var(--text-caption--letter-spacing);
+    color: var(--accent-2);
+    margin-bottom: 0.6rem;
+  }
+
+  .case-body > h3 {
+    font-size: var(--text-body);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--ink-2);
+    margin-top: 2.5rem;
+  }
+
+  .case-body ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .case-body ul li {
+    position: relative;
+    padding-left: 1.6rem;
+  }
+
+  .case-body ul li + li {
+    margin-top: 0.55rem;
+  }
+
+  .case-body ul li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--accent-2);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    top: 0.05em;
+  }
+
+  .case-body a {
+    color: var(--accent-2);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+  }
+
+  .case-body :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    padding: 0.12em 0.4em;
+  }
+
+  .case-body pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    line-height: 1.6;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  .case-body blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1.25rem;
+    font-family: var(--font-display);
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+  }
+
+  .case-body strong {
+    font-weight: 620;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  .case-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-small);
+  }
+
+  .case-body th,
+  .case-body td {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.6rem 0.9rem 0.6rem 0;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .case-body th {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--text-caption);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion. Everything below is progressive enhancement:
+   - initial hidden states only apply when JS is present (html.js)
+   - prefers-reduced-motion disables all non-essential motion
+--------------------------------------------------------------------------- */
+
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    transition:
+      opacity 0.55s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Fallback theme transition when View Transitions API is unavailable. */
+html.theme-fade,
+html.theme-fade *,
+html.theme-fade *::before,
+html.theme-fade *::after {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    fill 0.25s ease,
+    stroke 0.25s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}

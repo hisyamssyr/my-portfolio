@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /styleguide
+
+# TODO(owner): replace example.com with the production domain once it exists.
+Sitemap: https://example.com/sitemap-index.xml

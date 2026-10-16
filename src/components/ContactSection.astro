@@ -1,0 +1,49 @@
+---
+import { existsSync } from "node:fs";
+import SectionLabel from "./SectionLabel.astro";
+import ActionLink from "./ActionLink.astro";
+import CopyEmail from "./CopyEmail.astro";
+
+const EMAIL = "hisyamsyafa2@gmail.com";
+const cvPath = "public/hisyam-syafa-raditya-cv.pdf";
+const hasCv = existsSync(cvPath);
+---
+
+<section id="contact" class="scroll-mt-24 border-t border-rule" aria-labelledby="contact-heading">
+  <div class="wrap grid min-h-[70svh] content-center gap-10 py-20 lg:grid-cols-12 lg:gap-8">
+    <div class="lg:col-span-3" data-reveal>
+      <SectionLabel index="05" text="Contact" />
+    </div>
+
+    <div class="lg:col-span-9">
+      <h2 id="contact-heading" class="max-w-[24ch] text-h1 font-[540]" data-reveal>
+        Email is the fastest way to reach me.
+      </h2>
+
+      <p class="mt-6 max-w-[58ch] text-lead text-ink-2" data-reveal style="--reveal-delay: 80ms">
+        Whether you want to pull apart the six-gate pipeline, compare notes on agent architectures,
+        or talk about a role where data and machine learning matter — write to me. I answer every
+        message.
+      </p>
+
+      <div class="mt-10 flex flex-wrap items-center gap-3" data-reveal style="--reveal-delay: 140ms">
+        <CopyEmail email={EMAIL} />
+
+        <ActionLink href={`mailto:${EMAIL}`} icon="mail" external={false}>Email me</ActionLink>
+        <ActionLink href="https://linkedin.com/in/hisyam-syafa-raditya" icon="linkedin" external>
+          LinkedIn
+        </ActionLink>
+        <ActionLink href="https://github.com/hisyamssyr" icon="github" external>GitHub</ActionLink>
+        {
+          hasCv && (
+            <ActionLink href="/hisyam-syafa-raditya-cv.pdf" icon="file-down">Download CV</ActionLink>
+          )
+        }
+      </div>
+
+      <p class="mono-label mt-8" data-reveal style="--reveal-delay: 180ms">
+        {EMAIL} — Surabaya, Indonesia
+      </p>
+    </div>
+  </div>
+</section>

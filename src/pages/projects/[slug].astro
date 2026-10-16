@@ -1,0 +1,311 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionLabel from "../../components/SectionLabel.astro";
+import SixGateDiagram from "../../components/diagrams/SixGateDiagram.astro";
+import AgentsDiagram from "../../components/diagrams/AgentsDiagram.astro";
+import NumeralDiagram from "../../components/diagrams/NumeralDiagram.astro";
+import Icon from "../../components/Icon.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { Content, headings } = await render(project);
+
+const all = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+const position = all.findIndex((item) => item.id === project.id);
+const previous = all[(position - 1 + all.length) % all.length];
+const next = all[(position + 1) % all.length];
+
+const toc = [
+  ...headings.filter((heading) => heading.depth === 2).map((heading) => ({
+    id: heading.slug,
+    label: heading.text,
+  })),
+  { id: "stack", label: "Stack" },
+];
+
+const diagramCaptions: Record<string, string> = {
+  "six-gate":
+    "Fig. 01 — Repair verification pipeline. Three gates are documented so far; the rest are marked TODO.",
+  agents: "Fig. 01 — Agent roles, the retrieval layer, and the three compared setups.",
+  numeral: "Fig. 01 — The dataset: 15 classes, 10,500 images from 70 writers.",
+};
+
+const diagram = project.data.diagram;
+---
+
+<BaseLayout
+  title={`${project.data.title} — Hisyam Syafa Raditya`}
+  description={project.data.summary}
+  ogType="article"
+>
+  <div
+    data-progress
+    aria-hidden="true"
+    class="fixed inset-x-0 top-0 z-50 h-[2px] origin-left bg-accent"
+    style="transform: scaleX(0)"
+  >
+  </div>
+
+  <div class="wrap py-12 lg:py-16">
+    <nav class="flex items-center justify-between gap-4" aria-label="Breadcrumb">
+      <a
+        href="/#work"
+        class="group inline-flex min-h-11 items-center gap-2 font-mono text-[11px] tracking-[0.14em] text-ink-2 uppercase transition-colors hover:text-ink"
+      >
+        <Icon
+          name="arrow-left"
+          size={14}
+          class="transition-transform duration-300 group-hover:-translate-x-0.5 motion-reduce:transition-none"
+        />
+        All work
+      </a>
+      <p class="mono-label">
+        {String(position + 1).padStart(2, "0")} / {String(all.length).padStart(2, "0")}
+      </p>
+    </nav>
+
+    <div class="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:gap-8">
+      <aside class="hidden lg:col-span-3 lg:block">
+        <div class="lg:sticky lg:top-24">
+          <SectionLabel index={String(position + 1).padStart(2, "0")} text="Case Study" />
+
+          <nav aria-label="On this page" class="mt-6">
+            <ul class="toc-list">
+              {
+                toc.map((item) => (
+                  <li>
+                    <a href={`#${item.id}`} data-spy-link={item.id} class="toc-link">
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      <div class="lg:col-span-9">
+        <header>
+          <p class="mono-label" data-reveal>{project.data.tags.join(" · ")}</p>
+          <h1 class="mt-4 max-w-[18ch] text-h1 font-[560]" data-reveal>
+            {project.data.title}
+          </h1>
+          <p class="mt-6 max-w-[54ch] text-lead text-ink-2" data-reveal style="--reveal-delay: 80ms">
+            {project.data.tagline}
+          </p>
+        </header>
+
+        <details class="toc-mobile mt-8 border border-rule lg:hidden">
+          <summary
+            class="mono-label flex min-h-11 cursor-pointer items-center justify-between gap-4 px-4 py-3"
+          >
+            On this page
+            <Icon
+              name="arrow-down"
+              size={14}
+              class="toc-mobile-chevron transition-transform duration-300 motion-reduce:transition-none"
+            />
+          </summary>
+          <ul class="space-y-2.5 border-t border-rule px-4 py-4">
+            {
+              toc.map((item) => (
+                <li>
+                  <a href={`#${item.id}`} class="link-underline text-small text-ink-2 hover:text-ink">
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </details>
+
+        <dl
+          class="mt-10 grid gap-x-8 gap-y-6 border-y border-rule py-6 sm:grid-cols-3"
+          data-reveal
+        >
+          <div>
+            <dt class="mono-label">Year</dt>
+            <dd class="mt-1.5 font-mono text-small">{project.data.year}</dd>
+          </div>
+
+          <div>
+            <dt class="mono-label">Stack</dt>
+            <dd class="mt-1.5 font-mono text-small text-ink-2">{project.data.stack.join(" · ")}</dd>
+          </div>
+
+          <div>
+            <dt class="mono-label">Links</dt>
+            <dd class="mt-1.5 flex flex-wrap items-center gap-x-5 gap-y-2">
+              {
+                project.data.repo ? (
+                  <a
+                    href={project.data.repo}
+                    rel="noopener noreferrer"
+                    class="link-underline inline-flex items-center gap-1.5 font-mono text-small"
+                  >
+                    Repository <Icon name="arrow-up-right" size={13} />
+                  </a>
+                ) : (
+                  <span class="todo-chip">TODO: repo link</span>
+                )
+              }
+            </dd>
+          </div>
+        </dl>
+
+        {
+          diagram && (
+            <figure class="mt-12 border border-rule" data-reveal>
+              <div class="px-4 py-6 sm:px-8 sm:py-8">
+                {diagram === "six-gate" && <SixGateDiagram />}
+                {diagram === "agents" && <AgentsDiagram />}
+                {diagram === "numeral" && <NumeralDiagram />}
+              </div>
+              <figcaption class="border-t border-rule px-4 py-3 font-mono text-[11px] tracking-[0.06em] text-ink-2 sm:px-8">
+                {diagramCaptions[diagram]}
+              </figcaption>
+            </figure>
+          )
+        }
+
+        <div class="case-body mt-16 max-w-xl">
+          <Content />
+
+          <h2 id="stack" data-reveal>Stack</h2>
+          <ul>
+            {project.data.stack.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <nav class="mt-20 border-t border-rule sm:grid sm:grid-cols-2" aria-label="Project navigation">
+      <a
+        href={`/projects/${previous.id}`}
+        class="group flex min-h-11 flex-col gap-1 border-b border-rule py-6 sm:border-r sm:pr-8 sm:not-last:border-b-0"
+      >
+        <span class="mono-label flex items-center gap-2">
+          <Icon
+            name="arrow-left"
+            size={13}
+            class="transition-transform duration-300 group-hover:-translate-x-0.5 motion-reduce:transition-none"
+          />
+          Previous
+        </span>
+        <span class="font-display text-h3 font-[540] transition-colors group-hover:text-accent-2">
+          {previous.data.title}
+        </span>
+      </a>
+
+      <a
+        href={`/projects/${next.id}`}
+        class="group flex min-h-11 flex-col gap-1 py-6 sm:items-end sm:pl-8 sm:text-right"
+      >
+        <span class="mono-label flex items-center gap-2">
+          Next
+          <Icon
+            name="arrow-right"
+            size={13}
+            class="transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none"
+          />
+        </span>
+        <span class="font-display text-h3 font-[540] transition-colors group-hover:text-accent-2">
+          {next.data.title}
+        </span>
+      </a>
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  .toc-list {
+    border-left: 1px solid var(--rule);
+  }
+
+  .toc-link {
+    display: block;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    padding: 0.3rem 0 0.3rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .toc-link:hover {
+    color: var(--ink);
+  }
+
+  .toc-link[data-active] {
+    color: var(--accent-2);
+    border-left-color: var(--accent);
+  }
+
+  .toc-mobile summary {
+    list-style: none;
+  }
+
+  .toc-mobile summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc-mobile[open] .toc-mobile-chevron {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  function setupCaseStudy() {
+    // Direct loads: mark headings before the layout's reveal observer runs.
+    // (On View Transitions the router may skip this script, so BaseLayout's
+    // before-swap hook marks the headings on the incoming document instead.)
+    document.querySelectorAll<HTMLElement>(".case-body > h2:not([data-reveal])").forEach((heading) => {
+      heading.setAttribute("data-reveal", "");
+    });
+
+    if ((window as unknown as { __progressBound?: boolean }).__progressBound) return;
+    (window as unknown as { __progressBound?: boolean }).__progressBound = true;
+
+    const update = () => {
+      const bar = document.querySelector<HTMLElement>("[data-progress]");
+      if (!bar) return;
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const progress = max > 0 ? Math.min(doc.scrollTop / max, 1) : 0;
+      bar.style.transform = `scaleX(${progress.toFixed(4)})`;
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    update();
+  }
+
+  setupCaseStudy();
+  document.addEventListener("astro:page-load", setupCaseStudy);
+</script>

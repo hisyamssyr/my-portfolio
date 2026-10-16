@@ -1,0 +1,123 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import SelectedWork from "../components/SelectedWork.astro";
+import TimelineSection from "../components/TimelineSection.astro";
+import SkillsSection from "../components/SkillsSection.astro";
+import ContactSection from "../components/ContactSection.astro";
+
+const experience = [
+  {
+    period: "Aug 2025 – Dec 2025",
+    title: "Teaching Assistant, Database Systems",
+    org: "Institut Teknologi Sepuluh Nopember",
+    points: [
+      "Mentored 13 students through database design and SQL.",
+      "Explained CDM/PDM, DDL and DML with live demonstrations.",
+      "Authored SQL case studies and graded assignments and quizzes across 7 sessions.",
+    ],
+  },
+  {
+    period: "Sep 2024 – Oct 2024",
+    title: "Programming Division Intern",
+    org: "ITS Robocon",
+    points: [
+      "Programmed microcontrollers in C++ and Python.",
+      "Studied ROS fundamentals for robot navigation and control.",
+    ],
+  },
+];
+
+const organizations = [
+  {
+    period: "Mar 2026 – Present",
+    title: "External Affairs Staff",
+    org: "HMTC ITS",
+    points: [
+      "PIC for the Siapin Karirmu Instagram content program.",
+      "Coordinated 60 participants as liaison officer for company visits to Oracle and Telkom.",
+      "Led planning and execution of the Benchmarking program.",
+    ],
+  },
+  {
+    period: "Mar 2026 – Present",
+    title: "Vice Head of Data Management",
+    org: "Schematics 2026",
+    points: [
+      "Standardized registration data SOPs for web and offline channels.",
+      "Automated SQL query generation from spreadsheets.",
+      "Built Looker Studio dashboards, and automated mass messaging and email.",
+    ],
+  },
+  {
+    period: "Aug 2025 – Mar 2026",
+    title: "Head of Food & Nutrition",
+    org: "Ramadan di Kampus 1447H",
+    points: [
+      "Led 25+ staff running daily food distribution for 700+ participants.",
+      "Coordinated 15+ vendors on procurement, pricing and MoUs.",
+      "Wrote quality and logistics SOPs for food handling.",
+    ],
+  },
+];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Hisyam Syafa Raditya",
+  url: "https://example.com",
+  email: "mailto:hisyamsyafa2@gmail.com",
+  jobTitle: "Informatics Student",
+  affiliation: {
+    "@type": "CollegeOrUniversity",
+    name: "Institut Teknologi Sepuluh Nopember",
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Surabaya",
+    addressCountry: "ID",
+  },
+  sameAs: [
+    "https://github.com/hisyamssyr",
+    "https://linkedin.com/in/hisyam-syafa-raditya",
+  ],
+  knowsAbout: [
+    "Machine Learning",
+    "Data Analysis",
+    "Large Language Models",
+    "Multi-Agent Systems",
+    "Retrieval-Augmented Generation",
+    "Application Security",
+    "Database Design",
+  ],
+};
+---
+
+<BaseLayout
+  title="Hisyam Syafa Raditya — Data & Agentic AI"
+  description="Informatics student at ITS building data, machine learning and agentic-AI systems. Selected work: an autonomous QA agent, BPMN change planning agents, and a numeral classifier."
+  jsonLd={jsonLd}
+>
+  <Hero />
+  <SelectedWork />
+
+  <TimelineSection
+    id="experience"
+    index="02"
+    label="Experience"
+    heading="Where I've worked"
+    intro="Teaching, robotics, and the habit of explaining things clearly."
+    items={experience}
+  />
+
+  <TimelineSection
+    id="organizations"
+    index="03"
+    label="Leadership & Organizations"
+    heading="Running things with other people"
+    items={organizations}
+  />
+
+  <SkillsSection />
+  <ContactSection />
+</BaseLayout>

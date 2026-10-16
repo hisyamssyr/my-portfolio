@@ -1,0 +1,51 @@
+---
+title: "Autonomous Web QA Agent"
+tagline: "An agent that can open a PR — and a pipeline that makes sure it can't break the repo."
+year: "2026"
+stack: ["Laravel 13", "Livewire 4", "Node.js", "Playwright", "LLM", "Docker"]
+tags: ["AI", "Backend", "Security"]
+order: 1
+summary: "An autonomous web QA agent with snapshot-validated LLM actions, a six-gate repair verification pipeline in isolated Docker sandboxes, and scoped GitHub App integration."
+repo: "https://github.com/irfansandyy/auto-qa-app"
+diagram: "six-gate"
+---
+
+## Context
+
+I built an autonomous QA agent for web applications. It drives a real browser with Playwright, reasons about what to test through an OpenAI-compatible LLM layer, and validates its own actions against live page snapshots. When a test fails, the agent can prepare a patch, verify it in isolation, and open a draft pull request through a GitHub App.
+
+## Problem
+
+Giving an LLM write access to a repository is a trust problem. The agent needs three abilities that pull against each other:
+
+- **Autonomy** — run tests and repairs without a human in the loop.
+- **Correctness** — prove that a fix addresses the failure instead of hiding it.
+- **Containment** — never touch anything outside the agreed scope.
+
+Most agent demos stop at "the model wrote code". The interesting engineering is the safety envelope around it.
+
+## Approach
+
+**Action validation, not trust.** The LLM proposes browser actions, and every action must map onto a real element in the latest page snapshot. Anything that does not match a snapshot node is rejected before it runs.
+
+**Six gates.** A repair is only accepted after it passes a pipeline of six verification gates. Three are documented so far: the regression must fail first, the patched code must pass the tests, and the change must survive a scripted browser replay. <span class="todo-chip">TODO: document gates 5–6</span>
+
+**Sandboxed verification.** Every gate runs in a disposable Docker environment. A patch never executes on the host, and anything that fails a gate dies with its sandbox.
+
+**Scoped write access.** The GitHub App integration inspects repositories, commits patches only to dedicated branches, and creates draft pull requests idempotently — running the same repair twice does not create two PRs.
+
+**Security controls.** SSRF prevention, DNS rebinding mitigation, same-origin enforcement, and credential redaction across logs and snapshots.
+
+## What I built
+
+- A Laravel 13 + Livewire 4 interface, with Node.js workers that own the Playwright browsers and sandbox lifecycle.
+- An LLM layer that works with any OpenAI-compatible provider.
+- A snapshot-based action validator that turns model output into executable, bounded browser steps.
+- The six-gate verification pipeline on top of Docker.
+- A GitHub App client: repository inspection, scoped commits, and idempotent draft PRs.
+
+## Result / What I learned
+
+<span class="todo-chip">TODO: add results</span> — outcome metrics and screenshots are not documented yet.
+
+The hardest part was never the model. It was designing a system where a wrong model output fails a gate instead of corrupting a repository. Safety by design meant the agent had to earn write access one gate at a time.

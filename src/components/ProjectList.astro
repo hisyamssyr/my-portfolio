@@ -1,0 +1,251 @@
+---
+import { getCollection } from "astro:content";
+import ProjectMotif from "./ProjectMotif.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="project-list" data-project-list>
+  <ul>
+    {
+      projects.map((project, index) => (
+        <li>
+          <a
+            href={`/projects/${project.id}`}
+            class="project-row"
+            data-preview={project.data.diagram}
+            data-reveal
+            style={`--reveal-delay: ${index * 70}ms`}
+          >
+            <span class="row-index font-mono">{String(index + 1).padStart(2, "0")}</span>
+            <span class="row-title font-display">{project.data.title}</span>
+            <span class="row-stack font-mono">{project.data.stack.join(" · ")}</span>
+            <span class="row-year font-mono">{project.data.year}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="project-preview" data-project-preview aria-hidden="true">
+    {
+      projects.map((project) => (
+        <div class="project-preview__card" data-preview-card={project.data.diagram}>
+          <ProjectMotif variant={project.data.diagram ?? "numeral"} class="h-auto w-full" />
+          <div class="mt-3 flex items-baseline justify-between gap-4">
+            <span class="font-display text-[15px] leading-tight">{project.data.title}</span>
+            <span class="font-mono text-[11px] text-ink-2">{project.data.year}</span>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .project-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    column-gap: 1rem;
+    row-gap: 0.35rem;
+    align-items: baseline;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .project-row::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .project-row::before {
+      transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .row-title {
+      transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+  }
+
+  .project-row:hover::before,
+  .project-row:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .project-row:hover .row-title,
+  .project-row:focus-visible .row-title {
+    transform: translateX(0.55rem);
+  }
+
+  .row-index {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-2);
+    padding-top: 0.55em;
+  }
+
+  .row-title {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: clamp(1.4rem, 1.1rem + 1.5vw, 2.3rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    font-weight: 540;
+    text-wrap: balance;
+  }
+
+  .row-stack {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-2);
+  }
+
+  .row-year {
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-2);
+    text-align: right;
+  }
+
+  @media (min-width: 1024px) {
+    .project-row {
+      grid-template-columns: 3rem 5fr 5fr 4rem;
+      align-items: center;
+      row-gap: 0;
+      padding-block: 2rem;
+    }
+
+    .row-index {
+      grid-row: 1;
+      padding-top: 0;
+    }
+
+    .row-stack {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .row-year {
+      grid-column: 4;
+    }
+  }
+
+  .project-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 35;
+    width: 20rem;
+    padding: 1rem;
+    border: 1px solid var(--rule-2);
+    background: var(--paper);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    will-change: transform;
+    box-shadow: 0 24px 48px -32px rgba(20, 19, 15, 0.5);
+  }
+
+  .project-preview.is-on {
+    opacity: 1;
+  }
+
+  .project-preview__card {
+    display: none;
+  }
+
+  .project-preview__card.is-on {
+    display: block;
+  }
+
+  @media (max-width: 1023px), (prefers-reduced-motion: reduce) {
+    .project-preview {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  function setupProjectPreview() {
+    const list = document.querySelector<HTMLElement>("[data-project-list]");
+    const preview = document.querySelector<HTMLElement>("[data-project-preview]");
+    if (!list || !preview || list.dataset.bound === "true") return;
+    list.dataset.bound = "true";
+
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!finePointer || reduced) return;
+
+    const rows = Array.from(list.querySelectorAll<HTMLElement>("[data-preview]"));
+    const cards = Array.from(preview.querySelectorAll<HTMLElement>("[data-preview-card]"));
+
+    let target = { x: 0, y: 0 };
+    let current = { x: 0, y: 0 };
+    let raf = 0;
+    let visible = false;
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.min(Math.max(value, min), max);
+
+    function loop() {
+      current.x += (target.x - current.x) * 0.16;
+      current.y += (target.y - current.y) * 0.16;
+      preview!.style.transform = `translate3d(${current.x.toFixed(1)}px, ${current.y.toFixed(1)}px, 0)`;
+      raf = window.requestAnimationFrame(loop);
+    }
+
+    function setCard(variant: string | undefined) {
+      cards.forEach((card) => card.classList.toggle("is-on", card.dataset.previewCard === variant));
+    }
+
+    function move(x: number, y: number) {
+      target = {
+        x: clamp(x + 28, 8, window.innerWidth - preview!.offsetWidth - 8),
+        y: clamp(y - preview!.offsetHeight / 2, 8, window.innerHeight - preview!.offsetHeight - 8),
+      };
+    }
+
+    rows.forEach((row) => {
+      row.addEventListener("mouseenter", (event) => {
+        setCard(row.dataset.preview);
+        if (!visible) {
+          visible = true;
+          preview!.classList.add("is-on");
+          const point = event as MouseEvent;
+          current = { x: point.clientX + 28, y: point.clientY };
+          window.cancelAnimationFrame(raf);
+          raf = window.requestAnimationFrame(loop);
+        }
+      });
+
+      row.addEventListener("mousemove", (event) => {
+        const point = event as MouseEvent;
+        move(point.clientX, point.clientY);
+      });
+    });
+
+    list.addEventListener("mouseleave", () => {
+      visible = false;
+      preview.classList.remove("is-on");
+      window.cancelAnimationFrame(raf);
+    });
+  }
+
+  setupProjectPreview();
+  document.addEventListener("astro:page-load", setupProjectPreview);
+</script>

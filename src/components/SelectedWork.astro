@@ -1,0 +1,23 @@
+---
+import SectionLabel from "./SectionLabel.astro";
+import ProjectList from "./ProjectList.astro";
+---
+
+<section id="work" class="scroll-mt-24 py-16 lg:py-24" aria-labelledby="work-heading">
+  <div class="wrap grid gap-10 lg:grid-cols-12 lg:gap-8">
+    <div class="lg:col-span-3">
+      <div class="lg:sticky lg:top-24" data-reveal>
+        <SectionLabel index="01" text="Selected Work" />
+        <h2 id="work-heading" class="mt-4 text-h2" data-reveal>Built to run unattended</h2>
+        <p class="mt-4 max-w-[34ch] text-small text-ink-2" data-reveal>
+          Each project page walks through the context, the decisions and what I learned — not just
+          the result.
+        </p>
+      </div>
+    </div>
+
+    <div class="lg:col-span-9">
+      <ProjectList />
+    </div>
+  </div>
+</section>

@@ -1,0 +1,16 @@
+---
+interface Props {
+  index: string;
+  text: string;
+  class?: string;
+  as?: "p" | "h2" | "div";
+}
+
+const { index, text, class: className = "", as: Tag = "div" } = Astro.props;
+---
+
+<Tag class:list={["mono-label flex items-baseline gap-2", className]}>
+  <span class="text-accent-2">{index}</span>
+  <span aria-hidden="true" class="text-rule-2">—</span>
+  <span>{text}</span>
+</Tag>

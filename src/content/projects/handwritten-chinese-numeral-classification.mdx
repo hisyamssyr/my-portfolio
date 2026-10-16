@@ -1,0 +1,41 @@
+---
+title: "Handwritten Chinese Numeral Classification"
+tagline: "A pipeline where honest evaluation matters more than a flattering accuracy number."
+year: "2026"
+stack: ["Python", "TensorFlow/Keras", "ResNet-18"]
+tags: ["AI", "Data"]
+order: 3
+summary: "An end-to-end classifier for handwritten Chinese numerals with leak-free writer-grouped cross-validation, multi-seed ensembling, test-time augmentation, and Grad-CAM diagnostics."
+repo: "https://www.kaggle.com/code/hisyamsyafaraditya/adm-v2"
+diagram: "numeral"
+---
+
+## Context
+
+I built an end-to-end classifier for handwritten Chinese numerals: 15 classes, 10,500 images, drawn by 70 different writers. The pipeline covers preprocessing, training, evaluation, and diagnostics.
+
+## Problem
+
+Writer style dominates handwriting recognition. If the same writer appears in both training and test data, the model can memorize a person instead of a character — and the reported accuracy lies. I wanted an evaluation protocol that cannot cheat.
+
+## Approach
+
+**Reproducible preprocessing.** One deterministic path from raw images to cached arrays, with disk caching so every experiment starts from identical inputs.
+
+**Augmentation for real variation.** Custom augmentation aimed at handwriting differences — stroke thickness, slant, and position — instead of generic image noise.
+
+**A tuned ResNet-18.** A custom head and training recipe on the ResNet-18 backbone: EMA weights, AdamW, learning-rate scheduling, label smoothing, and mixed-precision training.
+
+**Honest evaluation.** Cross-validation grouped by writer, so no writer's handwriting appears on both sides of a split. Multiple seeds are ensembled, test-time augmentation stabilizes inference, and Grad-CAM shows where the model actually looks.
+
+## What I built
+
+- The full pipeline: preprocessing, training, evaluation, and diagnostics in one reproducible codebase.
+- A writer-grouped cross-validation harness with multi-seed ensembling and test-time augmentation.
+- Grad-CAM visualizations per class and per error case.
+
+## Result / What I learned
+
+<span class="todo-chip">TODO: add results</span> — accuracy, per-class findings, and Grad-CAM examples are not documented yet.
+
+The lesson: the evaluation protocol is part of the model. Random splits flatter you; grouped by writer, every improvement has to come from real generalization.

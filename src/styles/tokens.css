@@ -1,0 +1,48 @@
+/* Design tokens — single source of truth for color, type and spacing rhythm.
+   Components must reference these via Tailwind classes (paper/ink/rule/accent…)
+   instead of hard-coding values.
+
+   Dark is the default (no OS query): `:root` carries the dark values so the
+   site is dark even before scripts run, while `[data-theme="light"]` switches
+   to the light palette. The `data-theme` attribute is set by an inline script
+   in BaseLayout.astro and kept in sync across page navigations. */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --paper: #121110;
+  --paper-2: #1b1a18;
+
+  /* Text */
+  --ink: #ede8dc;
+  --ink-2: #a8a294;
+
+  /* Hairlines */
+  --rule: rgba(237, 232, 220, 0.16);
+  --rule-2: rgba(237, 232, 220, 0.4);
+
+  /* Accent — vermilion. `--accent` for graphics/large text,
+     `--accent-2` is the AA-safe variant for small text and links. */
+  --accent: #ff6240;
+  --accent-2: #ff6240;
+  --accent-ink: #1c0c07;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --paper: #f4f1ea;
+  --paper-2: #ebe7dc;
+
+  --ink: #14130f;
+  --ink-2: #56534a;
+
+  --rule: rgba(20, 19, 15, 0.14);
+  --rule-2: rgba(20, 19, 15, 0.34);
+
+  --accent: #e8431f;
+  --accent-2: #bd330f;
+  --accent-ink: #fff4ef;
+}

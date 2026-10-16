@@ -1,0 +1,57 @@
+---
+import SectionLabel from "./SectionLabel.astro";
+
+const groups = [
+  {
+    label: "Languages",
+    items: ["Python", "SQL", "Go", "C++", "PHP (Laravel)", "Node.js"],
+  },
+  {
+    label: "Data Science & AI",
+    items: [
+      "TensorFlow/Keras",
+      "LLMs",
+      "Multi-Agent AI",
+      "RAG",
+      "CNN (ResNet)",
+      "Cross-Validation",
+    ],
+  },
+  {
+    label: "Data & Tools",
+    items: ["Playwright", "Docker", "Looker Studio", "DBeaver", "TablePlus", "Git/GitHub", "Figma"],
+  },
+  {
+    label: "Other",
+    items: ["Business Process Modeling (BPMN)", "Application Security", "Database Design (CDM/PDM)"],
+  },
+];
+---
+
+<section id="skills" class="scroll-mt-24 border-t border-rule py-16 lg:py-24" aria-labelledby="skills-heading">
+  <div class="wrap grid gap-10 lg:grid-cols-12 lg:gap-8">
+    <div class="lg:col-span-3">
+      <div class="lg:sticky lg:top-24" data-reveal>
+        <SectionLabel index="04" text="Skills" />
+        <h2 id="skills-heading" class="mt-4 text-h2" data-reveal>Working toolkit</h2>
+      </div>
+    </div>
+
+    <dl class="lg:col-span-9">
+      {
+        groups.map((group, index) => (
+          <div
+            class:list={[
+              "grid gap-x-8 gap-y-2 py-6 md:grid-cols-[10rem_1fr] xl:grid-cols-[12rem_1fr]",
+              index === 0 ? "pt-0" : "border-t border-rule",
+            ]}
+            data-reveal
+          >
+            <dt class="mono-label">{group.label}</dt>
+            <dd class="max-w-[62ch]">{group.items.join(", ")}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

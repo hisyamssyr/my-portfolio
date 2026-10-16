@@ -1,0 +1,74 @@
+---
+import Monogram from "./Monogram.astro";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-rule">
+  <div class="wrap grid gap-10 py-12 md:grid-cols-12 md:py-16">
+    <div class="md:col-span-5">
+      <Monogram class="text-2xl" />
+      <p class="mt-4 max-w-xs text-small text-ink-2">
+        Informatics student at ITS. Data, machine learning and agentic AI systems.
+      </p>
+      <p class="mt-6 font-mono text-[11px] leading-relaxed tracking-[0.06em] text-ink-2">
+        Set in Fraunces, Instrument Sans<br />&amp; JetBrains Mono. Built with Astro.
+      </p>
+    </div>
+
+    <nav class="md:col-span-3" aria-label="Footer">
+      <p class="mono-label">Index</p>
+      <ul class="mt-4 space-y-2.5">
+        <li><a href="/#work" class="link-underline text-small text-ink-2 hover:text-ink">Work</a></li>
+        <li><a href="/#experience" class="link-underline text-small text-ink-2 hover:text-ink">Experience</a></li>
+        <li><a href="/#skills" class="link-underline text-small text-ink-2 hover:text-ink">Skills</a></li>
+        <li><a href="/#contact" class="link-underline text-small text-ink-2 hover:text-ink">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="md:col-span-4">
+      <p class="mono-label">Elsewhere</p>
+      <ul class="mt-4 space-y-2.5">
+        <li>
+          <a
+            href="mailto:hisyamsyafa2@gmail.com"
+            class="link-underline text-small text-ink-2 hover:text-ink"
+          >
+            hisyamsyafa2@gmail.com
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/hisyamssyr"
+            rel="noopener noreferrer"
+            class="link-underline text-small text-ink-2 hover:text-ink"
+          >
+            github.com/hisyamssyr
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://linkedin.com/in/hisyam-syafa-raditya"
+            rel="noopener noreferrer"
+            class="link-underline text-small text-ink-2 hover:text-ink"
+          >
+            linkedin.com/in/hisyam-syafa-raditya
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-rule">
+    <div class="wrap flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <p class="font-mono text-[11px] tracking-[0.08em] text-ink-2">
+        © {year} Hisyam Syafa Raditya
+      </p>
+      <p class="font-mono text-[11px] tracking-[0.08em] text-ink-2">
+        <kbd class="border border-rule px-1">T</kbd> theme
+        <span class="mx-1.5 text-rule-2" aria-hidden="true">·</span>
+        <kbd class="border border-rule px-1">G</kbd> <kbd class="border border-rule px-1">H</kbd> home
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,68 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  email: string;
+  label?: string;
+}
+
+const { email, label = "Copy email" } = Astro.props;
+---
+
+<button
+  type="button"
+  data-copy-email={email}
+  class="copy-btn group inline-flex min-h-11 items-center gap-2.5 bg-accent px-5 font-mono text-[12px] tracking-[0.12em] text-accent-ink uppercase transition-colors hover:bg-ink hover:text-paper"
+>
+  <span data-copy-label-default>{label}</span>
+  <span data-copy-label-done hidden>Copied</span>
+  <span data-copy-icon-default><Icon name="copy" size={15} /></span>
+  <span data-copy-icon-done hidden><Icon name="check" size={15} /></span>
+</button>
+
+<span role="status" aria-live="polite" class="sr-only" data-copy-status></span>
+
+<script>
+  function setupCopyEmail() {
+    document.querySelectorAll<HTMLButtonElement>("[data-copy-email]").forEach((button) => {
+      if (button.dataset.bound === "true") return;
+      button.dataset.bound = "true";
+
+      const status = button.parentElement?.querySelector<HTMLElement>("[data-copy-status]");
+      const show = (done: boolean) => {
+        button.querySelectorAll<HTMLElement>("[data-copy-label-default]").forEach((el) => {
+          el.hidden = done;
+        });
+        button.querySelectorAll<HTMLElement>("[data-copy-label-done]").forEach((el) => {
+          el.hidden = !done;
+        });
+        button.querySelectorAll<HTMLElement>("[data-copy-icon-default]").forEach((el) => {
+          el.hidden = done;
+        });
+        button.querySelectorAll<HTMLElement>("[data-copy-icon-done]").forEach((el) => {
+          el.hidden = !done;
+        });
+      };
+
+      button.addEventListener("click", async () => {
+        const email = button.dataset.copyEmail ?? "";
+        try {
+          await navigator.clipboard.writeText(email);
+        } catch {
+          window.location.href = `mailto:${email}`;
+          return;
+        }
+
+        show(true);
+        if (status) status.textContent = `Email ${email} copied to clipboard`;
+        window.setTimeout(() => {
+          show(false);
+          if (status) status.textContent = "";
+        }, 2200);
+      });
+    });
+  }
+
+  setupCopyEmail();
+  document.addEventListener("astro:page-load", setupCopyEmail);
+</script>

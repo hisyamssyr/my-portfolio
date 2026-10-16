@@ -1,0 +1,236 @@
+---
+import Icon from "../Icon.astro";
+
+const roles = [
+  {
+    id: "analyst",
+    name: "Analyst",
+    desc: "Interprets the BPMN update and turns the process change into a concrete, scoped statement of what the software must do differently.",
+  },
+  {
+    id: "backend",
+    name: "Backend",
+    desc: "Plans server-side work: endpoints, data models and logic that the process change touches.",
+  },
+  {
+    id: "frontend",
+    name: "Frontend",
+    desc: "Plans form, interaction and navigation changes that follow from the updated process.",
+  },
+  {
+    id: "css",
+    name: "CSS",
+    desc: "Plans the styling work for affected views, keeping the existing visual system intact.",
+  },
+  {
+    id: "reviewer",
+    name: "Reviewer",
+    desc: "Challenges the combined plan and checks its structural logic before it is accepted as output.",
+  },
+];
+
+const setups = [
+  { name: "Single agent", agents: "1", retrieval: "—" },
+  { name: "Single agent + RAG", agents: "1", retrieval: "Yes" },
+  { name: "Multi-agent + RAG", agents: "5", retrieval: "Yes" },
+];
+---
+
+<div data-agents-diagram>
+  <div class="flow flex flex-col items-stretch gap-2 lg:flex-row lg:items-center">
+    <div class="flow-box">
+      <p class="mono-label">Input</p>
+      <p class="flow-title">BPMN update</p>
+    </div>
+
+    <span class="flow-arrow"><Icon name="arrow-right" size={15} /></span>
+
+    <button
+      type="button"
+      data-role-btn="analyst"
+      data-active="true"
+      aria-controls="role-panel"
+      class="flow-box flow-box--interactive"
+    >
+      <p class="mono-label"><span class="text-accent-2">01</span> — Role</p>
+      <p class="flow-title">Analyst</p>
+    </button>
+
+    <span class="flow-arrow"><Icon name="arrow-right" size={15} /></span>
+
+    <div class="grid flex-1 grid-cols-3 gap-2 lg:grid-cols-1">
+      {
+        roles.slice(1, 4).map((role, index) => (
+          <button
+            type="button"
+            data-role-btn={role.id}
+            aria-controls="role-panel"
+            class="flow-box flow-box--interactive flow-box--compact"
+          >
+            <p class="mono-label"><span class="text-accent-2">0{index + 2}</span></p>
+            <p class="flow-title flow-title--small">{role.name}</p>
+          </button>
+        ))
+      }
+    </div>
+
+    <span class="flow-arrow"><Icon name="arrow-right" size={15} /></span>
+
+    <button
+      type="button"
+      data-role-btn="reviewer"
+      aria-controls="role-panel"
+      class="flow-box flow-box--interactive"
+    >
+      <p class="mono-label"><span class="text-accent-2">05</span> — Role</p>
+      <p class="flow-title">Reviewer</p>
+    </button>
+
+    <span class="flow-arrow"><Icon name="arrow-right" size={15} /></span>
+
+    <div class="flow-box">
+      <p class="mono-label">Output</p>
+      <p class="flow-title">Change plan</p>
+    </div>
+  </div>
+
+  <div class="mt-4 border border-rule p-5">
+    <p class="mono-label"><span class="text-accent-2">RAG</span> — retrieval layer</p>
+    <p class="mt-3 max-w-[62ch] text-small text-ink-2">
+      Every planning step can retrieve relevant implementation examples from the existing ERP
+      codebase, so plans reference patterns that already exist instead of inventing new ones.
+    </p>
+  </div>
+
+  <div id="role-panel" class="mt-4" aria-live="polite">
+    {
+      roles.map((role, index) => (
+        <div
+          data-role-panel={role.id}
+          data-active={index === 0 ? "true" : undefined}
+          class="role-panel border border-rule p-5"
+        >
+          <p class="mono-label">
+            <span class="text-accent-2">0{index + 1}</span> — {role.name}
+          </p>
+          <p class="mt-3 max-w-[62ch] text-small text-ink-2">{role.desc}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-8">
+    <p class="mono-label">Comparative experiment — three setups, same inputs</p>
+    <div class="table-scroll mt-3">
+      <table class="w-full border-collapse text-small">
+        <thead>
+          <tr>
+            <th class="border-b border-rule-2 py-2 pr-6 text-left font-mono text-[11px] tracking-[0.12em] text-ink-2 uppercase">Setup</th>
+            <th class="border-b border-rule-2 py-2 pr-6 text-left font-mono text-[11px] tracking-[0.12em] text-ink-2 uppercase">Agents</th>
+            <th class="border-b border-rule-2 py-2 text-left font-mono text-[11px] tracking-[0.12em] text-ink-2 uppercase">Retrieval (RAG)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            setups.map((setup) => (
+              <tr>
+                <td class="border-b border-rule py-2.5 pr-6">{setup.name}</td>
+                <td class="border-b border-rule py-2.5 pr-6 font-mono text-[13px]">{setup.agents}</td>
+                <td class="border-b border-rule py-2.5 font-mono text-[13px]">{setup.retrieval}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  .flow-box {
+    border: 1px solid var(--rule);
+    padding: 0.6rem 0.8rem;
+    background: var(--paper);
+    text-align: left;
+  }
+
+  .flow-box--interactive {
+    border-top-width: 3px;
+    border-top-color: var(--ink);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .flow-box--interactive:hover {
+    background: var(--paper-2);
+  }
+
+  .flow-box--interactive[data-active="true"] {
+    border-top-color: var(--accent);
+    background: var(--paper-2);
+  }
+
+  .flow-box--compact {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .flow-title {
+    font-size: var(--text-body);
+    line-height: 1.3;
+  }
+
+  .flow-title--small {
+    font-size: var(--text-small);
+  }
+
+  .flow-arrow {
+    display: flex;
+    justify-content: center;
+    color: var(--rule-2);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1023px) {
+    .flow-arrow {
+      transform: rotate(90deg);
+    }
+  }
+
+  :global(html.js) .role-panel:not([data-active]) {
+    display: none;
+  }
+</style>
+
+<script>
+  function setupRoles() {
+    document.querySelectorAll<HTMLElement>("[data-agents-diagram]").forEach((diagram) => {
+      if (diagram.dataset.bound === "true") return;
+      diagram.dataset.bound = "true";
+
+      const buttons = Array.from(diagram.querySelectorAll<HTMLButtonElement>("[data-role-btn]"));
+      const panels = Array.from(diagram.querySelectorAll<HTMLElement>("[data-role-panel]"));
+
+      function activate(button: HTMLButtonElement) {
+        buttons.forEach((item) => {
+          if (item === button) item.dataset.active = "true";
+          else delete item.dataset.active;
+        });
+        const target = button.dataset.roleBtn;
+        panels.forEach((panel) => {
+          if (panel.dataset.rolePanel === target) panel.dataset.active = "true";
+          else delete panel.dataset.active;
+        });
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => activate(button));
+        button.addEventListener("focus", () => activate(button));
+      });
+    });
+  }
+
+  setupRoles();
+  document.addEventListener("astro:page-load", setupRoles);
+</script>

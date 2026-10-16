@@ -1,0 +1,63 @@
+---
+import SectionLabel from "./SectionLabel.astro";
+
+interface Item {
+  period: string;
+  title: string;
+  org: string;
+  points: string[];
+}
+
+interface Props {
+  id: string;
+  index: string;
+  label: string;
+  heading: string;
+  intro?: string;
+  items: Item[];
+}
+
+const { id, index, label, heading, intro, items } = Astro.props;
+---
+
+<section id={id} class="scroll-mt-24 border-t border-rule py-16 lg:py-24" aria-labelledby={`${id}-heading`}>
+  <div class="wrap grid gap-10 lg:grid-cols-12 lg:gap-8">
+    <div class="lg:col-span-3">
+      <div class="lg:sticky lg:top-24" data-reveal>
+        <SectionLabel index={index} text={label} />
+        <h2 id={`${id}-heading`} class="mt-4 text-h2" data-reveal>{heading}</h2>
+        {intro && <p class="mt-4 max-w-[36ch] text-small text-ink-2" data-reveal>{intro}</p>}
+      </div>
+    </div>
+
+    <div class="lg:col-span-9">
+      {
+        items.map((item, itemIndex) => (
+          <article
+            class:list={[
+              "grid gap-x-8 gap-y-3 md:grid-cols-[10rem_1fr] xl:grid-cols-[12rem_1fr]",
+              itemIndex > 0 && "mt-12 border-t border-rule pt-8",
+            ]}
+            data-reveal
+          >
+            <p class="mono-label md:sticky md:top-24 md:self-start">{item.period}</p>
+
+            <div>
+              <h3 class="font-display text-h3 font-[540]">
+                {item.title}
+                <span class="mt-1 block font-sans text-small font-normal tracking-normal text-ink-2 normal-case">
+                  {item.org}
+                </span>
+              </h3>
+              <ul class="dash-list mt-4 max-w-[62ch] text-body">
+                {item.points.map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

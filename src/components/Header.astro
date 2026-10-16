@@ -1,0 +1,206 @@
+---
+import Icon from "./Icon.astro";
+import Monogram from "./Monogram.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
+const navLinks = [
+  { id: "work", label: "Work" },
+  { id: "experience", label: "Experience" },
+  { id: "contact", label: "Contact" },
+];
+
+const menuLinks = [
+  { id: "work", label: "Work", index: "01" },
+  { id: "experience", label: "Experience", index: "02" },
+  { id: "organizations", label: "Organizations", index: "03" },
+  { id: "skills", label: "Skills", index: "04" },
+  { id: "contact", label: "Contact", index: "05" },
+];
+---
+
+<header class="sticky top-0 z-40 border-b border-rule bg-paper">
+  <div class="wrap flex h-14 items-center justify-between gap-4 lg:h-16">
+    <Monogram />
+
+    <nav class="hidden md:block" aria-label="Primary">
+      <ul class="flex h-16 items-stretch">
+        {
+          navLinks.map((link) => (
+            <li class="flex items-stretch">
+              <a
+                href={`/#${link.id}`}
+                data-spy-link={link.id}
+                class="nav-link flex items-center px-5 font-mono text-[11px] tracking-[0.16em] text-ink-2 uppercase transition-colors hover:text-ink"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-0.5">
+      <ThemeToggle />
+      <button
+        type="button"
+        data-menu-open
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="inline-flex size-11 items-center justify-center border border-transparent text-ink-2 transition-colors hover:border-rule-2 hover:text-ink md:hidden"
+      >
+        <Icon name="menu" size={18} />
+        <span class="sr-only">Open menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="mobile-menu" data-menu hidden class="fixed inset-0 z-50 flex flex-col bg-paper md:hidden">
+  <div class="wrap flex h-14 shrink-0 items-center justify-between gap-4 border-b border-rule">
+    <Monogram />
+    <button
+      type="button"
+      data-menu-close
+      class="inline-flex size-11 items-center justify-center border border-transparent text-ink-2 transition-colors hover:border-rule-2 hover:text-ink"
+    >
+      <Icon name="close" size={18} />
+      <span class="sr-only">Close menu</span>
+    </button>
+  </div>
+
+  <nav aria-label="Menu" class="wrap w-full overflow-y-auto pt-6 pb-10">
+    <ul class="border-t border-rule">
+      {
+        menuLinks.map((link) => (
+          <li class="border-b border-rule">
+            <a href={`/#${link.id}`} class="group flex items-baseline justify-between gap-4 py-4">
+              <span class="font-display text-4xl leading-none">{link.label}</span>
+              <span class="mono-label transition-colors group-hover:text-accent-2">{link.index}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <a
+        href="mailto:hisyamsyafa2@gmail.com"
+        class="link-underline font-mono text-[11px] tracking-[0.12em] text-ink-2 uppercase"
+      >
+        hisyamsyafa2@gmail.com
+      </a>
+      <a
+        href="https://github.com/hisyamssyr"
+        rel="noopener noreferrer"
+        class="link-underline font-mono text-[11px] tracking-[0.12em] text-ink-2 uppercase"
+      >
+        GitHub
+      </a>
+      <a
+        href="https://linkedin.com/in/hisyam-syafa-raditya"
+        rel="noopener noreferrer"
+        class="link-underline font-mono text-[11px] tracking-[0.12em] text-ink-2 uppercase"
+      >
+        LinkedIn
+      </a>
+    </div>
+  </nav>
+</div>
+
+<style>
+  .nav-link[data-active] {
+    color: var(--ink);
+  }
+
+  .nav-link {
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 1.25rem;
+    right: 1.25rem;
+    bottom: -1px;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .nav-link[data-active]::after {
+    transform: scaleX(1);
+  }
+
+  :global(html.menu-open),
+  :global(html.menu-open body) {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  function setupMenu() {
+    const menu = document.querySelector<HTMLElement>("[data-menu]");
+    if (!menu || menu.dataset.bound === "true") return;
+    menu.dataset.bound = "true";
+    const menuEl = menu;
+
+    const openBtn = document.querySelector<HTMLButtonElement>("[data-menu-open]");
+    const closeBtn = menuEl.querySelector<HTMLButtonElement>("[data-menu-close]");
+    let lastFocus: HTMLElement | null = null;
+
+    const focusables = () =>
+      Array.from(menuEl.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"));
+
+    function open() {
+      lastFocus = document.activeElement as HTMLElement;
+      menuEl.hidden = false;
+      document.documentElement.classList.add("menu-open");
+      openBtn?.setAttribute("aria-expanded", "true");
+      closeBtn?.focus();
+    }
+
+    function close() {
+      menuEl.hidden = true;
+      document.documentElement.classList.remove("menu-open");
+      openBtn?.setAttribute("aria-expanded", "false");
+      lastFocus?.focus();
+    }
+
+    openBtn?.addEventListener("click", open);
+    closeBtn?.addEventListener("click", close);
+    menuEl.addEventListener("click", (event) => {
+      if ((event.target as HTMLElement).closest("a")) close();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (menuEl.hidden) return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        const items = focusables();
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  }
+
+  setupMenu();
+  document.addEventListener("astro:page-load", setupMenu);
+</script>

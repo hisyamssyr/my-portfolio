@@ -1,0 +1,38 @@
+---
+title: "Agentic AI for BPMN Code Change Planning"
+tagline: "Role decomposition and retrieval, measured against single-agent baselines."
+year: "2026"
+stack: ["Python", "Multi-Agent", "RAG"]
+tags: ["AI", "Data"]
+order: 2
+summary: "A collaborative multi-agent system that plans ERP code changes from BPMN updates, with RAG over the existing codebase and a three-way comparative experiment."
+diagram: "agents"
+---
+
+## Context
+
+Enterprise software follows business processes, and business processes are modeled as BPMN diagrams. Every BPMN update implies changes across an ERP codebase: forms, endpoints, styles, and logic. Writing that change plan by hand is slow. I studied whether an LLM system can draft it instead — and which architecture drafts it best.
+
+## Problem
+
+A single generalist agent sees the whole task but commits to no viewpoint. A specialized team sees each viewpoint but must coordinate. Retrieval adds relevant code examples but can also mislead. The honest question: does role decomposition or retrieval actually improve the plan — or only make the demo feel smarter?
+
+## Approach
+
+**Role decomposition.** Five specialized agents collaborate: analyst, backend, frontend, CSS, and reviewer. The analyst interprets the BPMN change, the implementers plan their slice, and the reviewer challenges the result before it is accepted.
+
+**Retrieval over the codebase.** RAG supplies concrete implementation examples from the existing ERP codebase, so plans reference patterns that already exist instead of inventing new ones.
+
+**A comparative experiment.** Three setups run on identical inputs: single-agent, single-agent + RAG, and multi-agent + RAG. Evaluation covers the accuracy of the change plan and the structural logic of the planned architecture.
+
+## What I built
+
+- A multi-agent orchestration layer with role prompts, hand-offs, and an explicit review step.
+- A RAG pipeline that indexes the ERP codebase and retrieves implementation examples per BPMN change.
+- An experiment harness that runs all three setups on the same inputs and records comparable outputs for evaluation.
+
+## Result / What I learned
+
+<span class="todo-chip">TODO: add results</span> — accuracy per setup and the findings from the comparison are not documented yet.
+
+The experiment itself is the deliverable: it turns "agents feel smarter" into a measurable claim. Two decisions I would keep: fixed roles instead of free-form delegation, and retrieval grounded in the real codebase instead of the model's memory.

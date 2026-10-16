@@ -1,0 +1,122 @@
+---
+import Icon from "./Icon.astro";
+
+const socials = [
+  { href: "mailto:hisyamsyafa2@gmail.com", label: "hisyamsyafa2@gmail.com" },
+  { href: "https://github.com/hisyamssyr", label: "GitHub" },
+  { href: "https://linkedin.com/in/hisyam-syafa-raditya", label: "LinkedIn" },
+];
+---
+
+<section class="hero relative isolate overflow-hidden" aria-labelledby="hero-title">
+  <div class="hero-grid absolute inset-0 -z-10" aria-hidden="true"></div>
+
+  <div class="wrap flex min-h-[calc(100svh-3.5rem)] flex-col justify-between pt-8 pb-6 lg:min-h-[calc(100svh-4rem)]">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-b border-rule pb-3">
+      <p class="mono-label">Surabaya, ID — 7.26°S 112.75°E</p>
+      <p class="mono-label">ITS — Informatics, 2024–2028</p>
+    </div>
+
+    <h1
+      id="hero-title"
+      class="font-display my-8 text-display font-[560] tracking-[-0.02em] leading-[0.92]"
+    >
+      <span class="mask"><span class="mask-inner" style="--d: 40ms">Hisyam</span></span>
+      <span class="mask">
+        <span class="mask-inner" style="--d: 130ms"
+          >Syafa Raditya<span class="hero-dot" aria-hidden="true"></span></span
+        >
+      </span>
+    </h1>
+
+    <div class="grid gap-x-8 gap-y-6 border-t border-rule pt-5 md:grid-cols-12">
+      <p class="max-w-[32ch] text-lead md:col-span-7">
+        Informatics student building data and agentic-AI systems.
+      </p>
+
+      <div class="flex flex-col gap-5 md:col-span-4 md:col-start-9 md:items-end">
+        <a
+          href="#work"
+          class="group inline-flex min-h-11 items-center gap-2 font-mono text-[11px] tracking-[0.16em] uppercase"
+        >
+          <span class="border-b border-rule-2 pb-0.5 transition-colors group-hover:border-accent group-hover:text-accent-2">
+            View selected work
+          </span>
+          <Icon
+            name="arrow-down"
+            size={14}
+            class="transition-transform duration-300 group-hover:translate-y-0.5 motion-reduce:transition-none"
+          />
+        </a>
+
+        <ul class="flex flex-wrap gap-x-5 gap-y-2 md:justify-end">
+          {
+            socials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  class="link-underline font-mono text-[11px] tracking-[0.08em] text-ink-2 hover:text-ink"
+                >
+                  {social.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-grid {
+    background-image: radial-gradient(var(--rule) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 75% at 68% 38%, black 15%, transparent 72%);
+    mask-image: radial-gradient(ellipse 85% 75% at 68% 38%, black 15%, transparent 72%);
+  }
+
+  .mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.1em;
+    margin-bottom: -0.1em;
+  }
+
+  /* Cap the name against viewport height so landscape phones keep the
+     tagline and links above the fold. */
+  #hero-title {
+    font-size: min(clamp(3.25rem, 12vw, 9.5rem), 21svh);
+  }
+
+  .mask-inner {
+    display: block;
+    animation: hero-rise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  @keyframes hero-rise {
+    from {
+      transform: translateY(112%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mask-inner {
+      animation: none;
+    }
+  }
+
+  .hero-dot {
+    display: inline-block;
+    width: 0.13em;
+    height: 0.13em;
+    background: var(--accent);
+    margin-left: 0.1em;
+    vertical-align: 0.08em;
+  }
+</style>

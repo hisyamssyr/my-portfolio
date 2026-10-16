@@ -1,0 +1,69 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  class="inline-flex size-11 items-center justify-center border border-transparent text-ink-2 transition-colors hover:border-rule-2 hover:text-ink"
+  aria-label="Switch color theme"
+>
+  <span class="theme-icon-sun"><Icon name="sun" size={17} /></span>
+  <span class="theme-icon-moon"><Icon name="moon" size={17} /></span>
+</button>
+
+<style>
+  .theme-icon-sun {
+    display: block;
+  }
+
+  .theme-icon-moon {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .theme-icon-sun {
+    display: none;
+  }
+
+  :global([data-theme="light"]) .theme-icon-moon {
+    display: block;
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+
+  function applyTheme(theme: string) {
+    root.dataset.theme = theme;
+    document
+      .querySelector<HTMLMetaElement>("[data-theme-color]")
+      ?.setAttribute("content", theme === "light" ? "#f4f1ea" : "#121110");
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      /* private mode: theme just won't persist */
+    }
+  }
+
+  function bindToggle() {
+    const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+    if (!button || button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", () => {
+      const next = root.dataset.theme === "light" ? "dark" : "light";
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (document.startViewTransition && !reduced) {
+        document.startViewTransition(() => applyTheme(next));
+      } else {
+        root.classList.add("theme-fade");
+        applyTheme(next);
+        window.setTimeout(() => root.classList.remove("theme-fade"), 300);
+      }
+    });
+  }
+
+  bindToggle();
+  document.addEventListener("astro:page-load", bindToggle);
+</script>
